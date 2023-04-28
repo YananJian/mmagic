@@ -1,10 +1,12 @@
-ARG PYTORCH="1.6.0"
-ARG CUDA="10.1"
-ARG CUDA_ALIAS="101"
-ARG CUDNN="7"
-ARG MMCV="2.0.0rc1"
+ARG PYTORCH="1.12.1"
+ARG CUDA="11.3"
+ARG CUDA_ALIAS="113"
+ARG CUDNN="8"
+ARG MMCV="2.0.0rc4"
 
 FROM pytorch/pytorch:${PYTORCH}-cuda${CUDA}-cudnn${CUDNN}-devel
+#RUN rm /etc/apt/sources.list.d/cuda.list
+#RUN rm /etc/apt/sources.list.d/nvidia-ml.list
 
 ENV TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0+PTX"
 ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
@@ -16,10 +18,16 @@ RUN apt-get update && apt-get install -y git ninja-build libglib2.0-0 libsm6 lib
 
 # Install mmagic
 RUN conda clean --all
-RUN git clone https://github.com/open-mmlab/mmagicg.git /mmagic
+RUN git clone https://github.com/open-mmlab/mmagic.git /mmagic
 WORKDIR /mmagic
 ENV FORCE_CUDA="1"
 RUN pip install openmim
-RUN mim install mmcv==${MMCV}
-RUN pip install -r requirements.txt
+RUN mim install mmcv=="2.0.0rc4"
+RUN pip install -r requirements/runtime.txt
+RUN pip install -r requirements/tests.txt
 RUN pip install --no-cache-dir -e .
+
+RUN git clone https://github.com/facebookresearch/xformers.git
+RUN cd xformers && git submodule update --init --recursive && pip install -r requirements.txt && pip install -e .
+
+RUN apt-get update && apt-get install -y vim

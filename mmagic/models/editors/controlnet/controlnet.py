@@ -20,6 +20,9 @@ from mmagic.utils.typing import SampleList
 from ..stable_diffusion import StableDiffusion
 from .controlnet_utils import change_base_model
 
+from copy import deepcopy
+from mmagic.models.archs import set_lora
+
 ModelType = Union[Dict, nn.Module]
 
 
@@ -61,18 +64,27 @@ class ControlStableDiffusion(StableDiffusion):
                  scheduler: ModelType,
                  test_scheduler: Optional[ModelType] = None,
                  enable_xformers: bool = True,
-                 tomesd_cfg: Optional[dict] = None,
                  data_preprocessor=dict(type='DataPreprocessor'),
-                 init_cfg: Optional[dict] = None):
+                 init_cfg: Optional[dict] = None,
+                 lora_config: Optional[dict] = None):
         super().__init__(vae, text_encoder, tokenizer, unet, scheduler,
-                         test_scheduler, enable_xformers, tomesd_cfg,
-                         data_preprocessor, init_cfg)
+                         test_scheduler, enable_xformers, data_preprocessor,
+                         init_cfg)
 
         self.controlnet = build_module(controlnet, MODELS)
 
         self.vae.requires_grad_(False)
         self.text_encoder.requires_grad_(False)
         self.unet.requires_grad_(False)
+        self.unet_in_channels = self.unet.in_channels
+        self.lora_config = deepcopy(lora_config)
+
+        self.set_lora()
+
+    def set_lora(self):
+        """Set LORA for model."""
+        if self.lora_config:
+            set_lora(self.unet, self.lora_config)
 
     def init_weights(self):
         """Initialize the weights. Noted that this function will only be called
@@ -175,7 +187,7 @@ class ControlStableDiffusion(StableDiffusion):
         """
         data = self.data_preprocessor(data)
         inputs, data_samples = data['inputs'], data['data_samples']
-        optimizer = optim_wrapper['controlnet']
+        optimizer = optim_wrapper
 
         with optimizer.optim_context(self.controlnet):
             target = inputs['target']
@@ -458,7 +470,7 @@ class ControlStableDiffusion(StableDiffusion):
         timesteps = self.test_scheduler.timesteps
 
         # 5. Prepare latent variables
-        num_channels_latents = self.unet.in_channels
+        num_channels_latents = self.unet_in_channels
         latents = self.prepare_latents(
             batch_size * num_images_per_prompt,
             num_channels_latents,

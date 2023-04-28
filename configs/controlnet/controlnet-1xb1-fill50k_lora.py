@@ -4,6 +4,7 @@ _base_ = '../_base_/gen_default_runtime.py'
 stable_diffusion_v15_url = 'runwayml/stable-diffusion-v1-5'
 controlnet_canny_url = 'lllyasviel/sd-controlnet-canny'
 
+lora_config = dict(target_modules=['to_q', 'to_k', 'to_v'])
 model = dict(
     type='ControlStableDiffusion',
     vae=dict(
@@ -34,11 +35,16 @@ model = dict(
         from_pretrained=stable_diffusion_v15_url,
         subfolder='scheduler'),
     data_preprocessor=dict(type='DataPreprocessor'),
-    init_cfg=dict(type='init_from_unet'))
+    init_cfg=dict(type='init_from_unet'),
+    lora_config=lora_config)
 
 # config for training
 train_cfg = dict(max_iters=10000)
-optim_wrapper = dict(controlnet=dict(optimizer=dict(type='AdamW', lr=1e-5)))
+optim_wrapper = dict(
+    # Only optimize LoRA mappings
+    modules='.*.lora_mapping',
+    optimizer=dict(type='AdamW', lr=1e-5),
+    accumulative_counts=1)
 
 # Config for data loader
 pipeline = [

@@ -2,4 +2,4 @@
 imageio-ffmpeg==0.4.4
 mmdet >= 3.0.0
 open_clip_torch
-PyQt5
+transformers
