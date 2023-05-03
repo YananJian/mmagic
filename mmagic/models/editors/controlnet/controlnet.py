@@ -68,8 +68,8 @@ class ControlStableDiffusion(StableDiffusion):
                  init_cfg: Optional[dict] = None,
                  lora_config: Optional[dict] = None):
         super().__init__(vae, text_encoder, tokenizer, unet, scheduler,
-                         test_scheduler, enable_xformers, data_preprocessor,
-                         init_cfg)
+                         test_scheduler, enable_xformers, data_preprocessor=data_preprocessor,
+                         init_cfg=init_cfg)
 
         self.controlnet = build_module(controlnet, MODELS)
 

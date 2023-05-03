@@ -61,7 +61,7 @@ pipeline = [
 ]
 dataset = dict(
     type='ControlNetDataset',
-    data_root='./data/fill50k',
+    data_root='/data/fill50k',
     ann_file='prompt.json',
     pipeline=pipeline)
 train_dataloader = dict(
@@ -84,3 +84,5 @@ custom_hooks = [
         n_samples=4,
         n_row=2)
 ]
+
+save_dir = '/data/controlnet-fill50k-outputs/'
