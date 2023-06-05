@@ -18,9 +18,9 @@ RUN apt-get update && apt-get install -y git ninja-build libglib2.0-0 libsm6 lib
 
 # Install mmagic
 RUN conda clean --all
-RUN git clone https://github.com/open-mmlab/mmagic.git /mmagic
+RUN git clone https://github.com/YananJian/mmagic.git /mmagic
 WORKDIR /mmagic
-ENV FORCE_CUDA="1"
+#ENV FORCE_CUDA="1"
 RUN pip install openmim
 RUN mim install mmcv=="2.0.0rc4"
 RUN pip install -r requirements/runtime.txt
@@ -30,4 +30,13 @@ RUN pip install --no-cache-dir -e .
 RUN git clone https://github.com/facebookresearch/xformers.git
 RUN cd xformers && git submodule update --init --recursive && pip install -r requirements.txt && pip install -e .
 
+RUN pip install git+https://github.com/facebookresearch/segment-anything.git
+
 RUN apt-get update && apt-get install -y vim
+RUN pip install jupyter notebook
+
+RUN pip install diffusers==0.12.1
+RUN pip install streamlit-drawable-canvas==0.8
+
+RUN git clone https://github.com/runwayml/stable-diffusion.git /stable-diffusion
+RUN pip install streamlit>=0.73.1

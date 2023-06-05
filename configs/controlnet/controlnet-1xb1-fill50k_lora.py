@@ -39,11 +39,11 @@ model = dict(
     lora_config=lora_config)
 
 # config for training
-train_cfg = dict(max_iters=10000)
+train_cfg = dict(max_iters=100000)
 optim_wrapper = dict(
     # Only optimize LoRA mappings
     modules='.*.lora_mapping',
-    optimizer=dict(type='AdamW', lr=1e-5),
+    optimizer=dict(type='AdamW', lr=0.25e-5),
     accumulative_counts=1)
 
 # Config for data loader
@@ -61,7 +61,7 @@ pipeline = [
 ]
 dataset = dict(
     type='ControlNetDataset',
-    data_root='/data/fill50k',
+    data_root='./data/fill50k',
     ann_file='prompt.json',
     pipeline=pipeline)
 train_dataloader = dict(
@@ -77,7 +77,7 @@ test_cfg = test_evaluator = test_dataloader = None
 custom_hooks = [
     dict(
         type='VisualizationHook',
-        interval=300,
+        interval=10000,
         fixed_input=True,
         # visualize train dataset
         vis_kwargs_list=dict(type='Data', name='fake_img'),
