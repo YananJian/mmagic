@@ -17,7 +17,7 @@ default_hooks = dict(
     # save checkpoint per 10000 iterations
     checkpoint=dict(
         type='CheckpointHook',
-        interval=50000,
+        interval=5000,
         by_epoch=False,
         max_keep_ckpts=20,
         less_keys=['FID-Full-50k/fid', 'FID-50k/fid', 'swd/avg'],

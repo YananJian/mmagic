@@ -16,4 +16,5 @@ python -m torch.distributed.launch \
     --master_port=$PORT \
     $(dirname "$0")/train.py \
     $CONFIG \
+    --work-dir=/data/dreambooth-lora-dota-heli-prior-0.0-retry/ \
     --launcher pytorch ${@:3}

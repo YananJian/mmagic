@@ -258,7 +258,8 @@ class DreamBooth(StableDiffusion):
 
             image = image.to(self.dtype)
             latents = self.vae.encode(image).latent_dist.sample()
-            latents = latents * self.vae.config.scaling_factor
+            #latents = latents * self.vae.config.scaling_factor
+            latents = latents * 0.18215
 
             noise = torch.randn_like(latents)
             timesteps = torch.randint(

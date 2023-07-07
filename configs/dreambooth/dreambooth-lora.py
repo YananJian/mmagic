@@ -4,9 +4,9 @@ _base_ = '../_base_/gen_default_runtime.py'
 stable_diffusion_v15_url = 'runwayml/stable-diffusion-v1-5'
 
 val_prompts = [
-    'a sks dog in basket', 'a sks dog on the mountain',
-    'a sks dog beside a swimming pool', 'a sks dog on the desk',
-    'a sleeping sks dog', 'a screaming sks dog', 'a man in the garden'
+    'a karameru cat in basket', 'a karameru cat on the mountain',
+    'a karameru cat beside a swimming pool', 'a karameru cat sitting on the desk',
+    'a sleeping karameru cat', 'a screaming karameru cat'
 ]
 
 lora_config = dict(target_modules=['to_q', 'to_k', 'to_v'])
@@ -35,17 +35,18 @@ model = dict(
         from_pretrained=stable_diffusion_v15_url,
         subfolder='scheduler'),
     data_preprocessor=dict(type='DataPreprocessor', data_keys=None),
-    prior_loss_weight=0,
+    prior_loss_weight= 0.0,
+    class_prior_prompt='a cat',
     val_prompts=val_prompts,
     lora_config=lora_config)
 
-train_cfg = dict(max_iters=1000)
+train_cfg = dict(max_iters=20000)
 
 optim_wrapper = dict(
     # Only optimize LoRA mappings
     modules='.*.lora_mapping',
     # NOTE: lr should be larger than dreambooth finetuning
-    optimizer=dict(type='AdamW', lr=5e-4),
+    optimizer=dict(type='AdamW', lr=3e-4),
     accumulative_counts=1)
 
 pipeline = [
@@ -55,10 +56,10 @@ pipeline = [
 ]
 dataset = dict(
     type='DreamBoothDataset',
-    data_root='./data/dreambooth',
+    data_root='/data/KarameruDoodles',
     # TODO: rename to instance
     concept_dir='imgs',
-    prompt='a photo of sks dog',
+    prompt='a photo of karameru cat',
     pipeline=pipeline)
 train_dataloader = dict(
     dataset=dataset,
@@ -74,7 +75,7 @@ default_hooks = dict(logger=dict(interval=10))
 custom_hooks = [
     dict(
         type='VisualizationHook',
-        interval=50,
+        interval=1000,
         fixed_input=True,
         # visualize train dataset
         vis_kwargs_list=dict(type='Data', name='fake_img'),
