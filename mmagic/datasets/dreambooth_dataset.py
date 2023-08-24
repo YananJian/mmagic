@@ -7,6 +7,8 @@ from mmengine.dataset import BaseDataset
 
 from mmagic.registry import DATASETS
 
+import json
+
 
 @DATASETS.register_module()
 class DreamBoothDataset(BaseDataset):
@@ -23,11 +25,14 @@ class DreamBoothDataset(BaseDataset):
                  data_root: str,
                  concept_dir: str,
                  prompt: str,
+                 prompt_fname: str = '',
                  pipeline: List[Union[dict, Callable]] = []):
 
         data_prefix = dict(img_path=concept_dir)
 
         self.prompt = prompt
+     
+        self.prompt_fname = prompt_fname
 
         super().__init__(
             data_root=data_root, data_prefix=data_prefix, pipeline=pipeline)
@@ -40,10 +45,18 @@ class DreamBoothDataset(BaseDataset):
         file_client = FileClient.infer_client(uri=img_dir)
         img_dir = osp.abspath(img_dir)
 
+        if self.prompt_fname != '':
+            prompt_path = osp.join(osp.dirname(img_dir), self.prompt_fname)
+            with open(prompt_path) as fp:
+                dataname2caption = json.loads(fp.read())
+
         for data_name in file_client.list_dir_or_file(img_dir, list_dir=False):
+            prompt = self.prompt if self.prompt_fname == '' else dataname2caption.get(data_name, '')
+            if prompt == '':
+                continue
             data_info = dict(
                 img_path=file_client.join_path(img_dir, data_name),
-                prompt=self.prompt)
+                prompt=prompt)
             data_list.append(data_info)
 
         return data_list
