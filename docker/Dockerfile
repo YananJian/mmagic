@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y git ninja-build libglib2.0-0 libsm6 lib
 # Install mmagic
 RUN conda clean --all
 RUN git clone https://github.com/YananJian/mmagic /mmagic
+COPY karameru_10000_revised.pth /mmagic/
 WORKDIR /mmagic
 ENV FORCE_CUDA="1"
 ENV CUDA_HOME="/usr/local/cuda"
